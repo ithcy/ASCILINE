@@ -130,6 +130,13 @@ PALETTE_PRESETS: dict[str, list[str]] = {
 # actual pixel color. The plain-symbol presets below "mono" don't have this
 # problem — they're still tinted by the real per-pixel ANSI color.
 
+# Presets whose glyphs are pre-colored emoji (ignore the ANSI color code) —
+# excluded from -r/--random by default since --include-emoji is off.
+EMOJI_PRESETS = frozenset({
+    "moons", "smileys", "hearts", "dots", "squares",
+    "rainbow-dots", "rainbow-hearts", "mono",
+})
+
 # Codepoint ranges commonly rendered double-width by emoji-capable terminal
 # fonts even though their formal Unicode East-Asian-Width property is often
 # "Neutral" (not "Wide"/"Fullwidth"). There's no fully reliable way to know a
@@ -480,7 +487,10 @@ def main():
     parser.add_argument("--preset", choices=list(PALETTE_PRESETS), default=None,
         help="Use a named preset palette")
     parser.add_argument("-r", "--random", action="store_true", default=False,
-        help=f"Pick a random preset palette ({', '.join(PALETTE_PRESETS)})")
+        help=f"Pick a random preset palette ({', '.join(PALETTE_PRESETS)}); "
+             "excludes emoji presets unless --include-emoji is given")
+    parser.add_argument("--include-emoji", action="store_true", default=False,
+        help="Allow -r/--random to pick emoji presets too")
     parser.add_argument("-q", "--quality", type=int, choices=[0, 1, 2, 3], default=0,
         help="Color quality: 0=max quality, 3=max speed (default: 0)")
     parser.add_argument("-w", "--width", dest="cols", type=_non_negative_int, default=0,
@@ -510,7 +520,10 @@ def main():
     if sum([args.block, bool(args.palette), bool(args.preset), args.random]) > 1:
         parser.error("--block, --palette, --preset, and --random/-r are mutually exclusive")
     if args.random:
-        preset_name = random.choice(list(PALETTE_PRESETS))
+        pool = list(PALETTE_PRESETS) if args.include_emoji else [
+            n for n in PALETTE_PRESETS if n not in EMOJI_PRESETS
+        ]
+        preset_name = random.choice(pool)
         custom_palette = PALETTE_PRESETS[preset_name]
         print(f" \033[90m> Random palette: {preset_name}\033[0m")
     elif args.preset:

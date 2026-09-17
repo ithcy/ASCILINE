@@ -18,7 +18,9 @@ import re
 import shutil
 import sys
 
-from ascii_video_player2 import PALETTE_PRESETS, AsciiMapper, VideoDecoder, palette_cell_width
+from ascii_video_player2 import (
+    EMOJI_PRESETS, PALETTE_PRESETS, AsciiMapper, VideoDecoder, palette_cell_width,
+)
 
 _ANSI_COLOR_RE = re.compile(r'\x1b\[38;2;(\d+);(\d+);(\d+)m')
 _ANSI_RESET_RE = re.compile(r'\x1b\[0m')
@@ -193,7 +195,10 @@ def main():
     parser.add_argument("--preset", choices=list(PALETTE_PRESETS), default=None,
         help="Use a named preset palette")
     parser.add_argument("-r", "--random", action="store_true", default=False,
-        help=f"Pick a random preset palette ({', '.join(PALETTE_PRESETS)})")
+        help=f"Pick a random preset palette ({', '.join(PALETTE_PRESETS)}); "
+             "excludes emoji presets unless --include-emoji is given")
+    parser.add_argument("--include-emoji", action="store_true", default=False,
+        help="Allow -r/--random to pick emoji presets too")
     parser.add_argument("--font-size", type=_positive_int, default=20,
         help="HTML output only: font size in px (default: 20)")
     parser.add_argument("-b", "--brightness", type=_non_negative_float, default=1.07,
@@ -215,7 +220,10 @@ def main():
     if sum([args.block, bool(args.palette), bool(args.preset), args.random]) > 1:
         parser.error("--block, --palette, --preset, and --random/-r are mutually exclusive")
     if args.random:
-        preset_name = random.choice(list(PALETTE_PRESETS))
+        pool = list(PALETTE_PRESETS) if args.include_emoji else [
+            n for n in PALETTE_PRESETS if n not in EMOJI_PRESETS
+        ]
+        preset_name = random.choice(pool)
         custom_palette = PALETTE_PRESETS[preset_name]
         print(f"[+] Random palette: {preset_name}", file=sys.stderr)
     elif args.preset:
