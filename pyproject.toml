@@ -24,10 +24,20 @@ ytdlp = [
     "yt-dlp>=2026.08.19",
 ]
 
+[project.scripts]
+asciline = "stream_server:main"
+asciline-play = "ascii_video_player2:main"
+asgrabber = "asgrabber:main"
+
+[tool.setuptools.data-files]
+"asciline_assets" = ["index.html", "app.js", "style.css", "codec.js", "examples/quickstart.html"]
+"asciline_assets/src" = ["src/asciline-player.js", "src/index.js"]
+
 [tool.setuptools]
 packages = ["asciline"]
 py-modules = [
     "ascii_video_player2",
+    "asgrabber",
     "codec",
     "compiler",
     "logo",

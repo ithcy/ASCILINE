@@ -234,7 +234,20 @@ def calc_auto_dimensions(cols: int, vid_w: int, vid_h: int, pixel_mode: bool) ->
     return cols, rows
 
 # Serve only whitelisted static files (security: prevents directory traversal)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+def _resolve_base_dir():
+    """Static assets (index.html, app.js, ...) live next to this file in an
+    editable/dev checkout, but land under sys.prefix/asciline_assets when
+    installed from a wheel (e.g. via pipx), since setuptools data-files are
+    not placed alongside py-modules in site-packages."""
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    if os.path.exists(os.path.join(script_dir, "index.html")):
+        return script_dir
+    installed_dir = os.path.join(sys.prefix, "asciline_assets")
+    if os.path.exists(os.path.join(installed_dir, "index.html")):
+        return installed_dir
+    return script_dir
+
+BASE_DIR = _resolve_base_dir()
 STATIC_WHITELIST = {
     "app.js", "style.css", "codec.js", 
     "src/asciline-player.js", "src/index.js",
@@ -250,7 +263,7 @@ async def serve_static(filename: str):
     return FileResponse(filepath)
 
 def get_html_content():
-    html_path = os.path.join(os.path.dirname(__file__), "index.html")
+    html_path = os.path.join(BASE_DIR, "index.html")
     with open(html_path, "r", encoding="utf-8") as f:
         return f.read()
 
@@ -1185,7 +1198,7 @@ def command_loop():
             os._exit(0)
 
 
-if __name__ == "__main__":
+def main():
     import sys
     if hasattr(sys.stdout, 'reconfigure'):
         sys.stdout.reconfigure(encoding='utf-8')
@@ -1405,5 +1418,9 @@ if __name__ == "__main__":
     # Restore the default signal handler for the main thread so that 
     # command_loop can catch KeyboardInterrupt and shut down cleanly.
     signal.signal(signal.SIGINT, signal.default_int_handler)
-    
+
     command_loop()
+
+
+if __name__ == "__main__":
+    main()
