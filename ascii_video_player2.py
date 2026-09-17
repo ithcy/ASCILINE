@@ -118,7 +118,7 @@ PALETTE_PRESETS: dict[str, list[str]] = {
     # Non-emoji "empty -> filled" gradients (plain symbol blocks, single-width
     # in virtually all terminals/fonts, actually tinted by the real pixel
     # color via the ANSI code — unlike the colored-emoji presets above).
-    "shade":          list(" ░▒▓█"),          # same as --block
+    "block":          list(" ░▒▓█"),          # same as --block
     "bars":           list(" ▁▂▄▅▇█"),        # sparkline bar heights
     "circles":        list("○◔◑◕●"),          # hollow -> filled circle
     "squares-line":   list(" □▫▪■"),          # empty -> filled square
