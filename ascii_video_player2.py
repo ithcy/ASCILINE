@@ -106,12 +106,29 @@ class VideoDecoder:
 #  glyph occupies exactly one palette cell.
 # ─────────────────────────────────────────────
 PALETTE_PRESETS: dict[str, list[str]] = {
-    "moons":    list("🌑🌘🌗🌖🌕"),      # new moon -> full moon
-    "smileys":  list("😴😑🙂😀🤩"),      # sleepy/dim -> ecstatic/bright
-    "hearts":   list("🖤💜💙💚💛"),      # black heart -> yellow heart
-    "dots":     list("⚫🔵🟢🟡⚪"),      # black circle -> white circle
-    "squares":  list("⬛🟦🟩🟨⬜"),      # black square -> white square
+    "moons":          list("🌑🌘🌗🌖🌕"),      # new moon -> full moon
+    "smileys":        list("😴😑🙂😀🤩"),      # sleepy/dim -> ecstatic/bright
+    "hearts":         list("🖤💜💙💚💛"),      # black heart -> yellow heart
+    "dots":           list("⚫🔵🟢🟡⚪"),      # black circle -> white circle
+    "squares":        list("⬛🟦🟩🟨⬜"),      # black square -> white square
+    "rainbow-dots":   list("🟣🔵🟢🟡🟠🔴"),    # violet -> red (dark = violet end)
+    "rainbow-hearts": list("💜💙💚💛🧡❤"),    # violet -> red, same spectrum order
+    "mono":           list("⚫🔘⚪"),          # black -> gray -> white (3 tones only)
+
+    # Non-emoji "empty -> filled" gradients (plain symbol blocks, single-width
+    # in virtually all terminals/fonts, actually tinted by the real pixel
+    # color via the ANSI code — unlike the colored-emoji presets above).
+    "shade":          list(" ░▒▓█"),          # same as --block
+    "bars":           list(" ▁▂▄▅▇█"),        # sparkline bar heights
+    "circles":        list("○◔◑◕●"),          # hollow -> filled circle
+    "squares-line":   list(" □▫▪■"),          # empty -> filled square
+    "braille":        list("⠀⠃⠇⡇⡟⣿"),        # braille dot-density
 }
+# NOTE: colored emoji glyphs are pre-colored and ignore the ANSI true-color
+# escape code entirely in most terminals — the emoji presets above give a
+# brightness -> hue/shape gradient (which glyph gets picked), not the video's
+# actual pixel color. The plain-symbol presets below "mono" don't have this
+# problem — they're still tinted by the real per-pixel ANSI color.
 
 # Codepoint ranges commonly rendered double-width by emoji-capable terminal
 # fonts even though their formal Unicode East-Asian-Width property is often
